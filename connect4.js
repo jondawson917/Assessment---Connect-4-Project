@@ -14,7 +14,7 @@ let board = []; // array of rows, each row is array of cells  (board[y][x])
 /** makeBoard: create in-JS board structure:
  *    board = array of rows, each row is array of cells  (board[y][x])
  */
-
+//Board set to HEIGHT and WIDTH values. Board's elements set to undefined to prevent triggering a win in checkWin() 
 function makeBoard() {
   board = Array(HEIGHT)
     .fill(undefined)
@@ -23,7 +23,7 @@ function makeBoard() {
     });
 }
 
-// TODO: set "board" to empty HEIGHT x WIDTH matrix array
+
 
 /** makeHtmlBoard: make HTML table and row of column tops. */
 
@@ -60,38 +60,44 @@ function makeHtmlBoard() {
 /** findSpotForCol: given column x, return top empty y (null if filled) */
 
 function findSpotForCol(x) {
-  // TODO: write the real version of this, rather than always returning 0
+  /*Spot to equal array of all td elements  */
   let spot = [...document.getElementsByTagName("td")];
+  /*Filter td elements matching desired id X AND empty */
   let col = spot.filter(function (currVal) {
+     
     if (currVal.getAttribute("id")[2] == x && currVal.innerHTML == "") {
       return currVal;
     } else {
       return undefined;
     }
   });
+  /*After filter creates col, an array of empty td's matching the id X, return the bottom td for column x */
   return col[col.length - 1];
 }
 
 /** placeInTable: update DOM to place piece into HTML table of board */
 
 function placeInTable(y, x) {
-  // TODO: make a div and insert into correct table cell
+//div is created, the class "piece" is added, and the id of the current player is assigned to the piece.
   const piece = document.createElement("div");
   piece.setAttribute("class", "piece");
   piece.setAttribute("id", currPlayer);
+  //Set the piece color depending on the current player value
   if (piece.getAttribute("id") == 1) {
     piece.style.backgroundColor = "red";
   } else {
     piece.style.backgroundColor = "blue";
   }
+  /*Set the current "array board" value to the player number 1 or 2 for the desired piece*/
   board[y][x] = currPlayer;
+  /*Attach the piece to the to the "html board" location y,x */
   document.getElementById(`${y}-${x}`).append(piece);
 }
 
 /** endGame: announce game end */
 
 function endGame(msg) {
-  // TODO: pop up alert message
+  //msg can be win or tie
   alert(msg);
 }
 
@@ -99,10 +105,10 @@ function endGame(msg) {
 
 function handleClick(evt) {
   // get x from ID of clicked cell
-  evt.preventDefault();
+  evt.preventDefault();/*Prevent Page Refresh*/
   let x = +evt.target.getAttribute("id");
 
-  // get next spot in column (if none, ignore click)
+  // get next spot in column (if none, ignore click). table row y is converted from string to integer
   let y = parseInt(findSpotForCol(x).getAttribute("id")[0]);
 
   //If y has a value, run placeInTable for board location x,y.
@@ -110,31 +116,21 @@ function handleClick(evt) {
   if (y) {
     placeInTable(y, x);
   }
-
+/*Run checkfor win to display the endGame message if returned true */
   if (checkForWin()) {
     return endGame(`Player ${currPlayer} won!`);
   }
-
+/*Search every element on the board if it has a value without four in a row, it is a tie */
   if (board.every((row) => row.every((cell) => cell))) {
     return endGame("Tie!");
   }
   currPlayer = currPlayer === 1 ? 2 : 1;
 }
 
-// place piece in board and add to HTML table
-// TODO: add line to update in-memory board
-
-// check for win
-
-// check for tie
-// TODO: check if all cells in board are filled; if so call, call endGame
-
-// switch players
-// TODO: switch currPlayer 1 <-> 2
-
-/** checkForWin: check board cell-by-cell for "does a win start here?" */
 
 function checkForWin() {
+/*First declare the function to check piece combinations */
+/*This is nested inside the checkforwin function*/
   function _win(cells) {
     // Check four cells to see if they're all color of current player
     //  - cells: list of four (y, x) cells
@@ -149,6 +145,7 @@ function checkForWin() {
         board[y][x] === currPlayer
     );
   }
+/*For each y,x for loop, the four possible winning piece arrangements are initialized*/
   for (let y = 0; y < HEIGHT; y++) {
     for (let x = 0; x < WIDTH; x++) {
       //For a fixed row position y, the column x is checked 3 places to the right.
@@ -180,9 +177,10 @@ function checkForWin() {
       // each four conditions becomes the "cells" parameter of the _win() function
       if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
         return true;
-      } //End of single iteration
+      } //End of single iteration If true, the loop stops
     }
   }
 }
+//Run the functions that form the board array and htmlboard in the DOM
 makeBoard();
 makeHtmlBoard();
